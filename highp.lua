@@ -1408,7 +1408,7 @@ function Library:SetTheme(themeName)
     end
 end
 
--- ========== LOADING SCREEN ==========
+-- ========== LOADING SCREEN (FIXED) ==========
 function Library:ShowLoading(text)
     local loading = Create({
         Type = "Frame",
@@ -1433,10 +1433,12 @@ function Library:ShowLoading(text)
         ZIndex = 1000
     })
     
-    -- Rotate animation
     local rot = 0
+    local active = true  -- FLAG BUAT NGECEK APAKAH MASIH AKTIF
     local connection
+    
     connection = RunService.Heartbeat:Connect(function(dt)
+        if not active then return end  -- <-- CEK DULU, KALO UDAH GA AKTIF SKIP
         rot = rot + dt * 100
         spinner.Rotation = rot
     end)
@@ -1456,12 +1458,18 @@ function Library:ShowLoading(text)
     
     return {
         Close = function()
-            connection:Disconnect()
-            loading:Destroy()
+            active = false                    -- MATIKAN FLAG DULU
+            task.wait()                        -- KASIH WAKTU LOOP TERAKHIR SELESAI
+            if connection then
+                connection:Disconnect()
+            end
+            if loading then
+                loading:Destroy()
+                loading = nil
+            end
         end
     }
 end
-
 -- ========== DESTROY ==========
 function Library:Destroy()
     if self.Blur then
