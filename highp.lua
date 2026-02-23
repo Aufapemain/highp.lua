@@ -1,188 +1,180 @@
--- [[ AURAlib v1.0 - PROFESSIONAL UI LIBRARY ]] --
--- Created by Gemini (Your AI Peer)
+-- [[ NEBULA ENGINE v1.0 | BEYOND EVERYTHING ]] --
+-- Pure source, no imitations. High-performance architecture.
 
-local AuraLib = {}
+local Nebula = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game.Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
 
-function AuraLib:CreateMain(title)
-    local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-    ScreenGui.Name = "AuraLib_UI"
-    ScreenGui.ResetOnSpawn = false
+-- UTILS (Sistem Animasi & Handling)
+local function Create(class, props)
+    local inst = Instance.new(class)
+    for k, v in pairs(props) do inst[k] = v end
+    return inst
+end
 
-    -- Main Frame (Glassmorphism Effect)
-    local Main = Instance.new("Frame", ScreenGui)
-    Main.Name = "MainFrame"
-    Main.Size = UDim2.new(0, 450, 0, 300)
-    Main.Position = UDim2.new(0.5, -225, 0.5, -150)
-    Main.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    Main.BorderSizePixel = 0
-    Main.ClipsDescendants = true
+function Nebula:CreateWindow(title)
+    local NebulaGui = Create("ScreenGui", {Name = "Nebula_Core", Parent = CoreGui})
+    
+    -- Main Frame (The Monolith)
+    local Main = Create("Frame", {
+        Name = "Main",
+        Parent = NebulaGui,
+        Size = UDim2.new(0, 500, 0, 350),
+        Position = UDim2.new(0.5, -250, 0.5, -175),
+        BackgroundColor3 = Color3.fromRGB(5, 5, 7),
+        BorderSizePixel = 0
+    })
+    Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Main})
+    Create("UIStroke", {Color = Color3.fromRGB(40, 40, 50), Thickness = 1, Parent = Main})
 
-    local Corner = Instance.new("UICorner", Main)
-    Corner.CornerRadius = UDim.new(0, 10)
+    -- Sidebar (Navigation)
+    local Sidebar = Create("Frame", {
+        Name = "Sidebar",
+        Parent = Main,
+        Size = UDim2.new(0, 140, 1, 0),
+        BackgroundColor3 = Color3.fromRGB(8, 8, 11),
+        BorderSizePixel = 0
+    })
+    Create("UIStroke", {Color = Color3.fromRGB(25, 25, 30), Thickness = 1, Parent = Sidebar})
 
-    local Stroke = Instance.new("UIStroke", Main)
-    Stroke.Thickness = 2
-    Stroke.Color = Color3.fromRGB(45, 45, 60)
-    Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    local TitleLbl = Create("TextLabel", {
+        Parent = Sidebar,
+        Size = UDim2.new(1, 0, 0, 50),
+        BackgroundTransparency = 1,
+        Text = title,
+        Font = Enum.Font.Code, -- Kesan Professional Dev
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 18
+    })
 
-    -- Sidebar
-    local Sidebar = Instance.new("Frame", Main)
-    Sidebar.Size = UDim2.new(0, 140, 1, 0)
-    Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-    Sidebar.BorderSizePixel = 0
+    local TabContainer = Create("ScrollingFrame", {
+        Parent = Sidebar,
+        Position = UDim2.new(0, 0, 0, 50),
+        Size = UDim2.new(1, 0, 1, -50),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 0,
+        CanvasSize = UDim2.new(0,0,0,0)
+    })
+    local TabList = Create("UIListLayout", {Parent = TabContainer, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 2)})
 
-    local SidebarList = Instance.new("UIListLayout", Sidebar)
-    SidebarList.Padding = UDim.new(0, 5)
-    SidebarList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    -- Content Area
+    local ContentHolder = Create("Frame", {
+        Name = "Content",
+        Parent = Main,
+        Position = UDim2.new(0, 150, 0, 10),
+        Size = UDim2.new(1, -160, 1, -20),
+        BackgroundTransparency = 1
+    })
 
-    local TopPadding = Instance.new("UIPadding", Sidebar)
-    TopPadding.PaddingTop = UDim.new(0, 15)
-
-    -- Title
-    local Title = Instance.new("TextLabel", Sidebar)
-    Title.Text = title:upper()
-    Title.Size = UDim2.new(1, 0, 0, 30)
-    Title.BackgroundTransparency = 1
-    Title.Font = Enum.Font.GothamBold
-    Title.TextColor3 = Color3.fromRGB(180, 160, 255)
-    Title.TextSize = 16
-
-    -- Container for Pages
-    local PageHolder = Instance.new("Frame", Main)
-    PageHolder.Position = UDim2.new(0, 150, 0, 10)
-    PageHolder.Size = UDim2.new(1, -160, 1, -20)
-    PageHolder.BackgroundTransparency = 1
-
-    -- Dragging Logic
-    local dragging, dragInput, dragStart, startPos
-    Main.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true; dragStart = input.Position; startPos = Main.Position
+    -- Dragging (Engineered for smoothness)
+    local dragging, dragStart, startPos
+    Main.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true; dragStart = i.Position; startPos = Main.Position
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
+    UserInputService.InputChanged:Connect(function(i)
+        if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = i.Position - dragStart
             Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+    UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
-    local tabs = {}
-    function tabs:CreateTab(name)
-        local Page = Instance.new("ScrollingFrame", PageHolder)
-        Page.Size = UDim2.new(1, 0, 1, 0)
-        Page.BackgroundTransparency = 1
-        Page.Visible = false
-        Page.ScrollBarThickness = 2
-        Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-        
-        local PageList = Instance.new("UIListLayout", Page)
-        PageList.Padding = UDim.new(0, 8)
-        PageList.SortOrder = Enum.SortOrder.LayoutOrder
-        PageList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            Page.CanvasSize = UDim2.new(0, 0, 0, PageList.AbsoluteContentSize.Y)
-        end)
+    local TabLogic = {}
+    function TabLogic:AddTab(tabName)
+        local Page = Create("ScrollingFrame", {
+            Parent = ContentHolder,
+            Size = UDim2.new(1, 0, 1, 0),
+            BackgroundTransparency = 1,
+            Visible = false,
+            ScrollBarThickness = 1,
+            ScrollBarImageColor3 = Color3.fromRGB(50, 50, 60),
+            CanvasSize = UDim2.new(0,0,0,0)
+        })
+        Create("UIListLayout", {Parent = Page, Padding = UDim.new(0, 8)})
 
-        local TabBtn = Instance.new("TextButton", Sidebar)
-        TabBtn.Size = UDim2.new(0, 120, 0, 35)
-        TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-        TabBtn.Text = name
-        TabBtn.Font = Enum.Font.GothamSemibold
-        TabBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-        TabBtn.TextSize = 13
-        local BtnCorner = Instance.new("UICorner", TabBtn)
-        BtnCorner.CornerRadius = UDim.new(0, 6)
+        local TabBtn = Create("TextButton", {
+            Parent = TabContainer,
+            Size = UDim2.new(1, -10, 0, 30),
+            BackgroundColor3 = Color3.fromRGB(15, 15, 20),
+            BackgroundTransparency = 1,
+            Text = tabName,
+            Font = Enum.Font.SourceSans,
+            TextColor3 = Color3.fromRGB(150, 150, 160),
+            TextSize = 14
+        })
 
         TabBtn.MouseButton1Click:Connect(function()
-            for _, p in pairs(PageHolder:GetChildren()) do p.Visible = false end
-            for _, b in pairs(Sidebar:GetChildren()) do 
-                if b:IsA("TextButton") then TweenService:Create(b, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(30, 30, 40)}):Play() end
+            for _, v in pairs(ContentHolder:GetChildren()) do v.Visible = false end
+            for _, v in pairs(TabContainer:GetChildren()) do
+                if v:IsA("TextButton") then
+                    TweenService:Create(v, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 150, 160), BackgroundTransparency = 1}):Play()
+                end
             end
             Page.Visible = true
-            TweenService:Create(TabBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 60, 180)}):Play()
+            TweenService:Create(TabBtn, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.8}):Play()
         end)
 
-        local elements = {}
-        
-        -- Modern Button
-        function elements:CreateButton(text, callback)
-            local Btn = Instance.new("TextButton", Page)
-            Btn.Size = UDim2.new(1, -10, 0, 35)
-            Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-            Btn.Text = text
-            Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Btn.Font = Enum.Font.Gotham
-            Btn.TextSize = 14
-            Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+        local Elements = {}
+
+        -- COMPONENT: Button (Action)
+        function Elements:AddButton(text, callback)
+            local Btn = Create("TextButton", {
+                Parent = Page,
+                Size = UDim2.new(1, -5, 0, 35),
+                BackgroundColor3 = Color3.fromRGB(20, 20, 25),
+                Text = text:upper(),
+                Font = Enum.Font.Code,
+                TextColor3 = Color3.fromRGB(220, 220, 220),
+                TextSize = 13,
+                AutoButtonColor = false
+            })
+            Create("UIStroke", {Color = Color3.fromRGB(40, 40, 50), Thickness = 1, Parent = Btn})
+            
+            Btn.MouseEnter:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 40)}):Play() end)
+            Btn.MouseLeave:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play() end)
             Btn.MouseButton1Click:Connect(callback)
         end
 
-        -- Modern TextBox
-        function elements:CreateTextBox(label, placeholder, callback)
-            local BoxFrame = Instance.new("Frame", Page)
-            BoxFrame.Size = UDim2.new(1, -10, 0, 50)
-            BoxFrame.BackgroundTransparency = 1
-            
-            local Lbl = Instance.new("TextLabel", BoxFrame)
-            Lbl.Text = label
-            Lbl.Size = UDim2.new(1, 0, 0, 20)
-            Lbl.TextColor3 = Color3.fromRGB(150, 150, 150)
-            Lbl.Font = Enum.Font.Gotham
-            Lbl.TextSize = 12
-            Lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-            local Input = Instance.new("TextBox", BoxFrame)
-            Input.Position = UDim2.new(0, 0, 0, 20)
-            Input.Size = UDim2.new(1, 0, 0, 25)
-            Input.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-            Input.Text = ""
-            Input.PlaceholderText = placeholder
-            Input.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Input.Font = Enum.Font.Gotham
-            Input.TextSize = 14
-            Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 4)
+        -- COMPONENT: Input (The Precision Box)
+        function Elements:AddInput(text, placeholder, callback)
+            local Container = Create("Frame", {
+                Parent = Page,
+                Size = UDim2.new(1, -5, 0, 45),
+                BackgroundColor3 = Color3.fromRGB(12, 12, 15),
+                BorderSizePixel = 0
+            })
+            Create("TextLabel", {
+                Parent = Container,
+                Size = UDim2.new(0.4, 0, 1, 0),
+                Position = UDim2.new(0, 8, 0, 0),
+                BackgroundTransparency = 1,
+                Text = text,
+                Font = Enum.Font.SourceSansBold,
+                TextColor3 = Color3.fromRGB(180, 180, 180),
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left
+            })
+            local Input = Create("TextBox", {
+                Parent = Container,
+                Size = UDim2.new(0.5, 0, 0, 25),
+                Position = UDim2.new(0.45, 0, 0.25, 0),
+                BackgroundColor3 = Color3.fromRGB(20, 20, 25),
+                Text = "",
+                PlaceholderText = placeholder,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                Font = Enum.Font.Code,
+                TextSize = 13
+            })
+            Create("UIStroke", {Color = Color3.fromRGB(45, 45, 55), Thickness = 1, Parent = Input})
             Input.FocusLost:Connect(function() callback(Input.Text) end)
         end
 
-        return elements
+        return Elements
     end
-    return tabs
+    return TabLogic
 end
 
--- [[ IMPLEMENTASI SCRIPT ]] --
-
-local UI = AuraLib:CreateMain("Aura V7")
-local MainTab = UI:CreateTab("Garden")
-local MoveTab = UI:CreateTab("Movement")
-
--- Garden Logic
-MainTab:CreateButton("Plant At Feet (Efficiency 100%)", function()
-    local Char = LocalPlayer.Character
-    local Tool = Char and Char:FindFirstChildOfClass("Tool")
-    if Tool and Char:FindFirstChild("HumanoidRootPart") then
-        local args = {
-            [1] = Tool.Name,
-            [2] = Char.HumanoidRootPart.Position - Vector3.new(0, 3, 0)
-        }
-        game:GetService("ReplicatedStorage").RemoteEvents.PlantSeed:InvokeServer(unpack(args))
-    end
-end)
-
--- Movement Logic
-local WS, JP = 16, 50
-MoveTab:CreateTextBox("WalkSpeed", "Default 16", function(val) WS = tonumber(val) or 16 end)
-MoveTab:CreateTextBox("JumpPower", "Default 50", function(val) JP = tonumber(val) or 50 end)
-
-RunService.Heartbeat:Connect(function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = WS
-        LocalPlayer.Character.Humanoid.JumpPower = JP
-    end
-end)
-
-print("AuraLib Professional Loaded.")
+return Nebula
